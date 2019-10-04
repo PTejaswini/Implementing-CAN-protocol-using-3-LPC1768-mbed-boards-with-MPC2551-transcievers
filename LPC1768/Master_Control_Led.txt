@@ -1,1 +1,56 @@
-
+//Code is not optimized as its written to help better understanding
+#include "mbed.h"
+ 
+const uint16_t  CONTROL_LED1 = 0x200;    // Messages to control LED1
+const uint16_t  CONTROL_LED2 = 0x201;    // Messages to control LED2
+const uint16_t SIGNAL_ID = 0x202;
+ 
+DigitalOut  led1(LED1);
+DigitalOut  led2(LED2);
+Serial      pc(USBTX, USBRX);
+CAN         can(p30, p29);
+CANMessage  msg;
+float signal;
+ 
+int main()
+{
+    can.frequency(250000);
+ 
+    while(1) {
+        if(can.read(msg)) {           
+            switch(msg.id) {
+            case CONTROL_LED1:
+                led1 = *reinterpret_cast<int*>(msg.data);
+                pc.printf("CAN message received from ECU1 :\r\n");
+                pc.printf("  ID      = 0x%.3x\r\n", msg.id);
+                pc.printf("  Type    = %d\r\n", msg.type);
+                pc.printf("  Format  = %d\r\n", msg.format);
+                pc.printf("  Length  = %d\r\n", msg.len);
+                pc.printf("  Data    = "); 
+                for(int i = 0; i < msg.len; i++)
+                pc.printf("%.2x", msg.data[i]);
+                pc.printf("\r\n");
+                break;
+            case CONTROL_LED2:
+                //led2 = *reinterpret_cast<int*>(msg.data);
+                led2 = *reinterpret_cast<char*>(msg.data);
+                pc.printf("CAN message received from ECU2 :\r\n");
+                pc.printf("  ID      = 0x%.3x\r\n", msg.id);
+                pc.printf("  Type    = %d\r\n", msg.type);
+                pc.printf("  Format  = %d\r\n", msg.format);
+                pc.printf("  Length  = %d\r\n", msg.len);
+                pc.printf("  Data    = "); 
+                for(int i = 0; i < msg.len; i++)
+                pc.printf("%.2x", msg.data[i]);
+                pc.printf("\r\n");
+                break;
+                
+            if(msg.id == SIGNAL_ID) {
+                led1 = !led1;
+                signal = *reinterpret_cast<float*>(msg.data);
+                pc.printf("  signal  = %5.2f\r\n", signal);
+             }
+            }
+        }
+    }
+}
