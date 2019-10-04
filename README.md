@@ -1,1 +1,1 @@
-# Implementing-CAN-protocol-using-3-LPC1768-mbed-boards-with-MPC2551-transcievers
+# Simple CAN communication between 3 Mbed boards, 2 acting as transmitters and 1 as receiver based on priority i.e. message identifier
