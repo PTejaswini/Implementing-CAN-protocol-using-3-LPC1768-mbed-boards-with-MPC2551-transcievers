@@ -1,1 +1,21 @@
-
+#include "mbed.h"
+ 
+const uint16_t SIGNAL_ID = 0x202;
+Serial      pc(USBTX, USBRX);
+CAN         can(p30, p29);
+DigitalOut  led1(LED1);
+float       signal = 257.31;
+CANMessage msg;
+ 
+int main()
+{
+    can.frequency(250000);
+    pc.baud(9600);
+ 
+    while(1) {
+        pc.printf("Message Sent : %5.2f\n\r",signal);
+        can.write(CANMessage(SIGNAL_ID, reinterpret_cast<char*>(&signal), sizeof(signal)));
+        wait(2.0);
+        led1 = !led1;
+    }
+}
